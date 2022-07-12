@@ -442,6 +442,8 @@ func (c *endpointClient) Proxy(ctx context.Context, opts *ProxyOpts) error {
 		Transport: net.Dial15Full300ClientWithPool.Transport,
 		Director:  director,
 	}
+
+	fmt.Printf("\nDEBUG: %v\n", net.Dial15Full300ClientWithPool.Transport)
 	proxy.ServeHTTP(opts.Writer, opts.Request)
 	return nil
 }
