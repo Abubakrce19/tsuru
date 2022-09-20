@@ -7,7 +7,7 @@ linters-settings:
     check-shadowing: true
   gofmt:
     simplify: true
-  maligned:
+  fieldalignment:
     suggest-new: true
 
 linters:
@@ -15,6 +15,6 @@ linters:
     - goimports
     - gofmt
     - misspell
-    - maligned
+    - fieldalignment
   disable:
     - errcheck
