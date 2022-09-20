@@ -181,8 +181,6 @@ type JobUnit struct {
 	CreatedAt *time.Time
 	Completed *bool
 	Restarts  *int32
-	IP        string
-	Status    Status
 }
 
 // GetName returns the name of the unit.
@@ -283,17 +281,22 @@ type App interface {
 
 type Job interface {
 	Named
+	// GetExecutions returns the executions that a job has.
+	GetExecutions() []uint
+
+	Envs() map[string]bind.EnvVar
+
 	GetMemory() int64
 	GetMilliCPU() int
 	GetSwap() int64
 	GetCpuShare() int
+
 	GetPool() string
+
 	GetTeamOwner() string
 	GetTeamsName() []string
+
 	GetMetadata() appTypes.Metadata
-	IsCron() bool
-	GetContainersInfo() []jobTypes.ContainerInfo
-	GetSchedule() string
 }
 
 type BuilderDockerClient interface {
@@ -411,6 +414,12 @@ type Provisioner interface {
 
 	// Units returns information about units by App.
 	Units(context.Context, ...App) ([]Unit, error)
+
+	// Creates a job or cronjob
+	ScheduleJob(context.Context, Job) error
+
+	// JobUnits returns information about units related to a specific Job or CronJob
+	JobUnits(context.Context, Job) ([]JobUnit, error)
 
 	// RoutableAddresses returns the addresses used to access an application.
 	RoutableAddresses(context.Context, App) ([]appTypes.RoutableAddresses, error)
