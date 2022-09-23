@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/url"
 	"reflect"
 	"strings"
@@ -208,6 +209,7 @@ type eventData struct {
 	OtherCustomData bson.Raw      `bson:",omitempty"`
 	Kind            Kind
 	Owner           Owner
+	SourceIP        string
 	LockUpdateTime  time.Time
 	Error           string
 	Log             string     `bson:",omitempty"`
@@ -396,6 +398,7 @@ type Opts struct {
 	InternalKind  string
 	Owner         auth.Token
 	RawOwner      Owner
+	RemoteAddr    string
 	CustomData    interface{}
 	DisableLock   bool
 	Cancelable    bool
@@ -944,6 +947,12 @@ func newEvtOnce(opts *Opts) (evt *Event, err error) {
 	if err != nil {
 		return nil, err
 	}
+
+	sourceIP := ""
+	if opts.RemoteAddr != "" {
+		sourceIP, _, _ = net.SplitHostPort(opts.RemoteAddr)
+	}
+
 	evt = &Event{eventData: eventData{
 		ID:              id,
 		UniqueID:        uniqID,
@@ -952,6 +961,7 @@ func newEvtOnce(opts *Opts) (evt *Event, err error) {
 		StartTime:       now,
 		Kind:            k,
 		Owner:           o,
+		SourceIP:        sourceIP,
 		StartCustomData: raw,
 		LockUpdateTime:  now,
 		Running:         true,
