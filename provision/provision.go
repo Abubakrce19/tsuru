@@ -294,6 +294,7 @@ type Job interface {
 	GetTeamsName() []string
 
 	GetMetadata() appTypes.Metadata
+	IsCron() bool
 }
 
 type BuilderDockerClient interface {
@@ -416,10 +417,7 @@ type Provisioner interface {
 	JobUnits(context.Context, Job) ([]JobUnit, error)
 
 	// JobSchedule creates a cronjob object in the cluster
-	ScheduleJob(context.Context, Job) error
-
-	// RunJob immediately runs a job in the cluster
-	RunJob(context.Context, Job) error
+	CreateJob(context.Context, Job) error
 
 	DestroyJob(context.Context, Job) error
 
