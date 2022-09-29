@@ -179,6 +179,8 @@ type JobUnit struct {
 	CreatedAt *time.Time
 	Completed *bool
 	Restarts  *int32
+	IP        string
+	Status    Status
 }
 
 // GetName returns the name of the unit.
