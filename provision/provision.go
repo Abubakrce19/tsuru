@@ -449,6 +449,11 @@ type LogsProvisioner interface {
 	WatchLogs(ctx context.Context, app appTypes.App, args appTypes.ListLogArgs) (appTypes.LogWatcher, error)
 }
 
+type JobLogsProvisioner interface {
+	List(ctx context.Context, args jobTypes.ListLogArgs) ([]jobTypes.JobLog, error)
+	Watch(ctx context.Context, args jobTypes.ListLogArgs) (jobTypes.LogWatcher, error)
+}
+
 // MetricsProvisioner is a provisioner that have capability to view metrics of workloads
 type MetricsProvisioner interface {
 	// Units returns information about cpu and memory usage by App.

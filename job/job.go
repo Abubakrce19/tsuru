@@ -1,6 +1,6 @@
-// App is the main type in tsuru. An app represents a real world application.
-// This struct holds information about the app: its name, address, list of
-// teams that have access to it, used platform, etc.
+// Copyright 2022 tsuru authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
 
 package job
 

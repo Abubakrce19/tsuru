@@ -37,6 +37,12 @@ type inputJob struct {
 	Containers []jobTypes.ContainerInfo `json:"containers"`
 }
 
+type JobLogs struct {
+	JobName      string
+	JobTeamOwner string
+	Lines        *int
+}
+
 func getJob(ctx stdContext.Context, name, teamOwner string) (*job.Job, error) {
 	j, err := job.GetByNameAndTeam(ctx, name, teamOwner)
 	if err != nil {
@@ -199,3 +205,66 @@ func contextsForJob(job *job.Job) []permTypes.PermissionContext {
 		permission.Context(permTypes.CtxPool, job.Pool),
 	)
 }
+
+// title: job log
+// path: /jobs/log
+// method: GET
+// produce: application/x-json-stream
+// responses:
+//
+//	200: Ok
+//	400: Invalid data
+//	401: Unauthorized
+//	404: Job not found
+// func jobLog(w http.ResponseWriter, r *http.Request, t auth.Token) error {
+// 	ctx := r.Context()
+// 	var err error
+// 	var jl jobLogs
+// 	err = ParseInput(r, &jl)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	j, err := getJob(ctx, jl.JobName, jl.JobTeamOwner)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	w.Header().Set("Content-Type", "application/x-json-stream")
+// 	allowed := permission.Check(t, permission.PermAppReadLog,
+// 		contextsForJob(j)...,
+// 	)
+// 	if !allowed {
+// 		return permission.ErrUnauthorized
+// 	}
+// 	logService := servicemanager.AppLog
+// 	if strings.Contains(r.URL.Path, "/log-instance") {
+// 		if svcInstance, ok := servicemanager.AppLog.(appTypes.AppLogServiceInstance); ok {
+// 			logService = svcInstance.Instance()
+// 		}
+// 	}
+// 	listArgs := appTypes.ListLogArgs{
+// 		AppName:      a.Name,
+// 		Limit:        lines,
+// 		Source:       source,
+// 		InvertSource: invert,
+// 		Units:        units,
+// 		Token:        t,
+// 	}
+// 	logs, err := a.LastLogs(ctx, logService, listArgs)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	encoder := json.NewEncoder(w)
+// 	err = encoder.Encode(logs)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if !follow {
+// 		return nil
+// 	}
+// 	watcher, err := logService.Watch(ctx, listArgs)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return followLogs(tsuruNet.CancelableParentContext(r.Context()), a.Name, watcher, encoder)
+// 	return nil
+// }
