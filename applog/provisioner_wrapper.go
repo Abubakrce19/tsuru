@@ -14,6 +14,7 @@ import (
 	"github.com/tsuru/tsuru/provision/pool"
 	"github.com/tsuru/tsuru/servicemanager"
 	appTypes "github.com/tsuru/tsuru/types/app"
+	tsuruTypes "github.com/tsuru/tsuru/types/tsuru"
 )
 
 var (
@@ -94,7 +95,7 @@ func (k *provisionerWrapper) Watch(ctx context.Context, args appTypes.ListLogArg
 		return nil, err
 	}
 
-	provisionerWatcher, err := logsProvisioner.WatchLogs(ctx, a, args)
+	provisionerWatcher, err := logsProvisioner.WatchLogs(ctx, a.(tsuruTypes.TsuruObject), args)
 	if err == provision.ErrLogsUnavailable {
 		return tsuruWatcher, nil
 	}

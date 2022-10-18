@@ -18,6 +18,7 @@ import (
 	"github.com/tsuru/tsuru/provision"
 	"github.com/tsuru/tsuru/set"
 	appTypes "github.com/tsuru/tsuru/types/app"
+	tsuruTypes "github.com/tsuru/tsuru/types/tsuru"
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	knet "k8s.io/apimachinery/pkg/util/net"
@@ -65,8 +66,8 @@ func (p *kubernetesProvisioner) ListLogs(ctx context.Context, app appTypes.App, 
 	return listLogsFromPods(ctx, clusterClient, ns, pods, args)
 }
 
-func (p *kubernetesProvisioner) WatchLogs(ctx context.Context, app appTypes.App, args appTypes.ListLogArgs) (appTypes.LogWatcher, error) {
-	clusterClient, err := clusterForPool(ctx, app.GetPool())
+func (p *kubernetesProvisioner) WatchLogs(ctx context.Context, obj tsuruTypes.TsuruObject, args appTypes.ListLogArgs) (appTypes.LogWatcher, error) {
+	clusterClient, err := clusterForPool(ctx, obj.GetPool())
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +81,7 @@ func (p *kubernetesProvisioner) WatchLogs(ctx context.Context, app appTypes.App,
 		return nil, err
 	}
 
-	ns, err := clusterClient.AppNamespace(ctx, app)
+	ns, err := clusterClient.ObjectNamespace(ctx, obj)
 	if err != nil {
 		return nil, err
 	}

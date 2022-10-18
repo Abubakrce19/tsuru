@@ -26,7 +26,9 @@ import (
 	"github.com/tsuru/tsuru/servicemanager"
 	appTypes "github.com/tsuru/tsuru/types/app"
 	imgTypes "github.com/tsuru/tsuru/types/app/image"
+	jobTypes "github.com/tsuru/tsuru/types/job"
 	provTypes "github.com/tsuru/tsuru/types/provision"
+	tsuruTypes "github.com/tsuru/tsuru/types/tsuru"
 	apiextensionsclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -310,6 +312,19 @@ func (c *ClusterClient) AppNamespace(ctx context.Context, app appTypes.App) (str
 		return c.Namespace(), nil
 	}
 	return c.appNamespaceByName(ctx, app.GetName())
+}
+
+func (c *ClusterClient) ObjectNamespace(ctx context.Context, obj tsuruTypes.TsuruObject) (string, error) {
+	if obj == nil {
+		return c.Namespace(), nil
+	}
+
+	switch obj.(type) {
+	case jobTypes.Job:
+		return c.PoolNamespace(obj.GetPool()), nil
+	default:
+		return c.appNamespaceByName(ctx, obj.GetName())
+	}
 }
 
 func (c *ClusterClient) appNamespaceByName(ctx context.Context, appName string) (string, error) {
