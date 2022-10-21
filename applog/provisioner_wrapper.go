@@ -22,7 +22,7 @@ var (
 	_ appTypes.AppLogServiceInstance = &provisionerWrapper{}
 )
 
-// provisionerWrapper is a layer designed to use provision native logging when is possible,
+// provisionerWrapper is a layer designed to use provision native logging when possible,
 // otherwise will use backwards compatibility with own tsuru log api.
 type provisionerWrapper struct {
 	logService        appTypes.AppLogService
@@ -55,7 +55,7 @@ func (k *provisionerWrapper) List(ctx context.Context, args appTypes.ListLogArgs
 	if err != nil {
 		return nil, err
 	}
-	logsProvisioner, err := k.provisionerGetter(ctx, a)
+	logsProvisioner, err := k.provisionerGetter(ctx, a.(tsuruTypes.TsuruObject))
 	if err == provision.ErrLogsUnavailable {
 		return tsuruLogs, nil
 	}
@@ -87,7 +87,7 @@ func (k *provisionerWrapper) Watch(ctx context.Context, args appTypes.ListLogArg
 		return nil, err
 	}
 
-	logsProvisioner, err := k.provisionerGetter(ctx, a)
+	logsProvisioner, err := k.provisionerGetter(ctx, a.(tsuruTypes.TsuruObject))
 	if err == provision.ErrLogsUnavailable {
 		return tsuruWatcher, nil
 	}
@@ -106,6 +106,25 @@ func (k *provisionerWrapper) Watch(ctx context.Context, args appTypes.ListLogArg
 	return newMultiWatcher(provisionerWatcher, tsuruWatcher), nil
 }
 
+func (k *provisionerWrapper) WatchJob(ctx context.Context, args appTypes.ListLogArgs) (appTypes.LogWatcher, error) {
+	j, err := servicemanager.Job.GetByName(ctx, args.JobName, args.TeamOwner)
+	if err != nil {
+		return nil, err
+	}
+
+	logsProvisioner, err := k.provisionerGetter(ctx, j.(tsuruTypes.TsuruObject))
+	if err != nil {
+		return nil, err
+	}
+
+	provisionerWatcher, err := logsProvisioner.WatchLogs(ctx, j.(tsuruTypes.TsuruObject), args)
+	if err != nil {
+		return nil, err
+	}
+
+	return newMultiWatcher(provisionerWatcher, nil), nil
+}
+
 func (k *provisionerWrapper) Instance() appTypes.AppLogService {
 	if svcInstance, ok := k.logService.(appTypes.AppLogServiceInstance); ok {
 		return svcInstance.Instance()
@@ -114,10 +133,10 @@ func (k *provisionerWrapper) Instance() appTypes.AppLogService {
 	return k.logService
 }
 
-type logsProvisionerGetter func(ctx context.Context, a appTypes.App) (provision.LogsProvisioner, error)
+type logsProvisionerGetter func(ctx context.Context, a tsuruTypes.TsuruObject) (provision.LogsProvisioner, error)
 
-var defaultLogsProvisionerGetter = func(ctx context.Context, a appTypes.App) (provision.LogsProvisioner, error) {
-	provisioner, err := pool.GetProvisionerForPool(ctx, a.GetPool())
+var defaultLogsProvisionerGetter = func(ctx context.Context, obj tsuruTypes.TsuruObject) (provision.LogsProvisioner, error) {
+	provisioner, err := pool.GetProvisionerForPool(ctx, obj.GetPool())
 	if err != nil {
 		return nil, err
 	}

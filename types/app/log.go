@@ -31,6 +31,8 @@ type AppLogServiceInstance interface {
 
 type ListLogArgs struct {
 	AppName      string
+	JobName      string
+	TeamOwner    string
 	Source       string
 	Units        []string
 	Limit        int

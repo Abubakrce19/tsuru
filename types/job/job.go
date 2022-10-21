@@ -4,10 +4,16 @@
 
 package job
 
+import "context"
+
 type Job interface {
 	GetName() string
 	GetPool() string
 	GetTeamOwner() string
 	GetTeamsName() []string
 	GetExecutions() []uint
+}
+
+type JobService interface {
+	GetByName(ctx context.Context, name, team string) (Job, error)
 }

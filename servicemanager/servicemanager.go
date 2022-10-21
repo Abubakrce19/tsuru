@@ -10,6 +10,7 @@ import (
 	"github.com/tsuru/tsuru/types/auth"
 	"github.com/tsuru/tsuru/types/cache"
 	"github.com/tsuru/tsuru/types/event"
+	"github.com/tsuru/tsuru/types/job"
 	"github.com/tsuru/tsuru/types/provision"
 	"github.com/tsuru/tsuru/types/quota"
 	"github.com/tsuru/tsuru/types/router"
@@ -20,6 +21,7 @@ import (
 
 var (
 	App                       app.AppService
+	Job                       job.JobService
 	AppCache                  cache.AppCacheService
 	Plan                      app.PlanService
 	Platform                  app.PlatformService
